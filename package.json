@@ -9,6 +9,7 @@
     "author": "Connor K Wilson",
     "license": "MIT",
     "dependencies": {
+        "node-fetch": "^2.6.1",
         "yargs": "^16.1.1"
     },
     "devDependencies": {

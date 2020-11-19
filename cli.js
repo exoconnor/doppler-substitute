@@ -1,13 +1,9 @@
 #!/usr/bin/env node
 
-// NOTE(connor): there is an option in this library to import commands from
-// modules. If you had horizontal feature growth it would make sense to
-// submodule it out, and have each featureset provide its own interface.
-// Right now that would just mean an excess of files
-
 import yargs from 'yargs';
 import {hideBin} from 'yargs/helpers';
-import substitute from './lib/substitute/index.js';
+
+import {substitute} from './lib/substitute.js';
 
 const USAGE_MESSAGE =
   'Recursively iterate through all files in <source> and replace variable ' +
@@ -24,25 +20,41 @@ dollar-handlebars:    \${{SECRET}}
 
 `;
 
-const argv = yargs(hideBin(process.argv))
-  .usage('$0 <source> <dest>', USAGE_MESSAGE)
-  .option('token', {
-    alias: 't',
-    type: 'string',
-    description: 'Doppler API token',
-    demandOption: true,
-  })
-  .help()
-  .option('verbose', {
-    type: 'boolean',
-  })
-  .option('format', {
-    type: 'string',
-    description: FORMAT_DESCRIPTION,
-    choices: ['dollar', 'dollar-curly', 'handlebars', 'dollar-handlebars'],
-    default: 'dollar-curly',
-  })
-  .wrap(null).argv; // Otherwise yargs wraps the template literal
 
-console.log(argv);
-// substitute(argv.source, argv.dest, );
+const argv = yargs(hideBin(process.argv))
+      .usage('$0 <source> <dest>', USAGE_MESSAGE)
+      .option('project', {
+        type: 'string',
+        description: 'project to grab secrets from',
+        requiresArg: true
+      })
+      .option('config', {
+        type: 'string',
+        description: 'config to grab secrets from',
+        requiresArg: true
+      })
+      .option('token', {
+        alias: 't',
+        type: 'string',
+        description: 'Doppler API token',
+      })
+      .help()
+      .option('verbose', {
+        type: 'boolean',
+      })
+      .option('format', {
+        type: 'string',
+        description: FORMAT_DESCRIPTION,
+        choices: ['dollar', 'dollar-curly', 'handlebars', 'dollar-handlebars'],
+        default: 'dollar-curly',
+      })
+      .wrap(null).argv; // Otherwise yargs puts newlines in the template literal
+
+// In a growing system this becomes the function dispatch switch
+let [status, messages] = await substitute(argv);
+if (status === ':ok') {
+  console.log('Done');
+  console.log(messages);
+} else {
+  console.error('Error: [\n' + messages.join('\n') + '\n ]')
+}
