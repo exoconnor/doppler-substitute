@@ -50,13 +50,12 @@ const argv = yargs(hideBin(process.argv))
       })
       .wrap(null).argv; // Otherwise yargs puts newlines in the template literal
 
-if (argv.verbose) console.log('Argv:', Argv);
+if (argv.verbose) console.log('Argv:', argv);
 
 // In a growing system this becomes the function dispatch switch
-let [status, messages] = await substitute(argv);
-if (status === ':ok') {
+try {
+  await substitute(argv);
   console.log('Done');
-  console.log(messages);
-} else {
-  console.error('Error: [\n' + messages.join('\n') + '\n ]')
+} catch(err) {
+  console.error('Error: ', err);
 }
