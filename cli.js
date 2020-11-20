@@ -8,7 +8,7 @@ import {substitute} from './lib/substitute.js';
 const USAGE_MESSAGE =
   'Recursively iterate through all files in <source> and replace variable ' +
   'expressions (see --format) with the respective secret from Doppler. ' +
-  'Write transformed files to <dest>';
+  'Write transformed files to <target>';
 
 const FORMAT_DESCRIPTION = `
 Variable Expression Formats
@@ -22,7 +22,7 @@ dollar-handlebars:    \${{SECRET}}
 
 
 const argv = yargs(hideBin(process.argv))
-      .usage('$0 <source> <dest>', USAGE_MESSAGE)
+      .usage('$0 <source> <target>', USAGE_MESSAGE)
       .option('project', {
         type: 'string',
         description: 'project to grab secrets from',
@@ -49,6 +49,8 @@ const argv = yargs(hideBin(process.argv))
         default: 'dollar-curly',
       })
       .wrap(null).argv; // Otherwise yargs puts newlines in the template literal
+
+if (argv.verbose) console.log('Argv:', Argv);
 
 // In a growing system this becomes the function dispatch switch
 let [status, messages] = await substitute(argv);
