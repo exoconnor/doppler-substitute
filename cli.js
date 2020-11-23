@@ -3,6 +3,7 @@
 import yargs from 'yargs';
 import {hideBin} from 'yargs/helpers';
 
+import {setToken} from './lib/dopplerClient.js';
 import {substitute} from './lib/substitute.js';
 
 const USAGE_MESSAGE =
@@ -11,7 +12,7 @@ const USAGE_MESSAGE =
   'Write transformed files to <target>';
 
 const FORMAT_DESCRIPTION = `
-Variable Expression Formats
+Variable Expression Formats (default: dollar-curly)
 ========================================
 dollar:                 \$SECRET
 dollar-curly:          \${SECRET}
@@ -50,10 +51,13 @@ const argv = yargs(hideBin(process.argv))
       })
       .wrap(null).argv; // Otherwise yargs puts newlines in the template literal
 
-if (argv.verbose) console.log('Argv:', argv);
+if (argv.verbose) console.log('argv:', argv);
 
 // In a growing system this becomes the function dispatch switch
 try {
+  if (argv.token) {
+    setToken(argv.token)
+  }
   await substitute(argv);
   console.log('Done');
 } catch(err) {
